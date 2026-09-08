@@ -37,17 +37,49 @@ Model *pretrained* yang digunakan (`buffalo_l` dari InsightFace) dilatih menggun
 Basis data dirancang untuk menyimpan vektor *embedding* 512 dimensi dengan indeks pencarian cepat HNSW:
 
 ```sql
--- Mengaktifkan ekstensi vector
-CREATE EXTENSION IF NOT EXISTS vector;
+    -- Mengaktifkan ekstensi vector
+    CREATE EXTENSION IF NOT EXISTS vector;
+    
+    -- Membuat tabel penyimpanan wajah terdaftar
+    CREATE TABLE registered_faces (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_name VARCHAR(255) NOT NULL,
+        face_embedding VECTOR(512) NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    );
+    
+    -- Membuat indeks HNSW untuk Cosine Similarity yang cepat
+    CREATE INDEX idx_face_embedding ON registered_faces 
+    USING hnsw (face_embedding vector_cosine_ops);
+```
+## 💻 Environment & Spesifikasi Perangkat
+* **Perangkat Keras:** MacBook Pro M4 Pro (24GB RAM / 512GB SSD)
+* **IDE:** Visual Studio Code (VS Code)
+* **Environment Manager:** Homebrew / Python venv
+* **Dependensi Utama:**
+    * insightface
+    * onnxruntime
+    * opencv-python
+    * psycopg[binary]
+    * pgvector
+    * numpy
 
--- Membuat tabel penyimpanan wajah terdaftar
-CREATE TABLE registered_faces (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_name VARCHAR(255) NOT NULL,
-    face_embedding VECTOR(512) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- Membuat indeks HNSW untuk Cosine Similarity yang cepat
-CREATE INDEX idx_face_embedding ON registered_faces 
-USING hnsw (face_embedding vector_cosine_ops);
+## ⚙️ Cara Menjalankan Proyek
+1. ** Clone repository ini: **
+   ```bash
+   git clone [https://github.com/SofyanSaif/FaceRecognition.git](https://github.com/SofyanSaif/FaceRecognition.git)
+   cd FaceRecognition
+   ```
+2. ** Buat Virtual Environment & Aktifkan: **
+   ```bash
+   python3 -m venv .venv
+    source .venv/bin/activate
+   ```
+3. ** Instal Dependensi:**
+   ```bash
+   pip install insightface onnxruntime opencv-python "psycopg[binary]" pgvector numpy
+   ```
+4. **Jalankan Skrip Utama:**
+   ```bash
+   python main.py
+   ```
